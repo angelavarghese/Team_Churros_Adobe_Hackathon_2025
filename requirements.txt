@@ -1,0 +1,3 @@
+pdfplumber==0.11.0
+# You might need to specify a compatible version of Pillow if issues arise
+# Pillow==9.5.0
