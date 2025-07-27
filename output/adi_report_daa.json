@@ -1,0 +1,447 @@
+{
+  "title": "adi_report_daa",
+  "outline": [
+    {
+      "level": "H1",
+      "text": "REPORT",
+      "page": 1
+    },
+    {
+      "level": "H1",
+      "text": "Affiliation",
+      "page": 1
+    },
+    {
+      "level": "H1",
+      "text": "in",
+      "page": 1
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 1
+    },
+    {
+      "level": "H1",
+      "text": "2024-2025",
+      "page": 2
+    },
+    {
+      "level": "H1",
+      "text": "CERTIFICATE",
+      "page": 2
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 2
+    },
+    {
+      "level": "H1",
+      "text": "DECLARATION",
+      "page": 3
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 3
+    },
+    {
+      "level": "H2",
+      "text": "[ \n  \nPlace: Bengaluru",
+      "page": 3
+    },
+    {
+      "level": "H1",
+      "text": "Date:",
+      "page": 3
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 3
+    },
+    {
+      "level": "H1",
+      "text": "ABSTRACT",
+      "page": 4
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 4
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 5
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 6
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 7
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 8
+    },
+    {
+      "level": "H1",
+      "text": "Justification:",
+      "page": 9
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 9
+    },
+    {
+      "level": "H1",
+      "text": "Advantages:",
+      "page": 10
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 10
+    },
+    {
+      "level": "H1",
+      "text": "Enhancements:",
+      "page": 11
+    },
+    {
+      "level": "H1",
+      "text": "Characteristics:",
+      "page": 11
+    },
+    {
+      "level": "H1",
+      "text": "Customizations:",
+      "page": 11
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 11
+    },
+    {
+      "level": "H3",
+      "text": "Each movement from a node A to node B computes the cost as:",
+      "page": 12
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 12
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 13
+    },
+    {
+      "level": "H1",
+      "text": "visualization",
+      "page": 14
+    },
+    {
+      "level": "H1",
+      "text": "entities",
+      "page": 14
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 14
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 15
+    },
+    {
+      "level": "H1",
+      "text": "- PathOptimizer.ts \n    - GridManager.ts \n  /core \n    - PathfindingEngine.ts \n  /utils \n    - Heuristics.ts \n    - Geometry.ts",
+      "page": 16
+    },
+    {
+      "level": "H1",
+      "text": "pedestrians, traffic).",
+      "page": 16
+    },
+    {
+      "level": "H1",
+      "text": "grid-based routing.",
+      "page": 16
+    },
+    {
+      "level": "H1",
+      "text": "strategies.",
+      "page": 16
+    },
+    {
+      "level": "H1",
+      "text": "calculations.",
+      "page": 16
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 16
+    },
+    {
+      "level": "H1",
+      "text": "loops.",
+      "page": 17
+    },
+    {
+      "level": "H1",
+      "text": "paths.",
+      "page": 17
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 17
+    },
+    {
+      "level": "H1",
+      "text": "severityMultiplier = { \n  low: 1.5, \n  medium: 2.5, \n  high: 4.0 \n};",
+      "page": 18
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 18
+    },
+    {
+      "level": "H1",
+      "text": "documentation.",
+      "page": 19
+    },
+    {
+      "level": "H1",
+      "text": "essential interfaces.",
+      "page": 19
+    },
+    {
+      "level": "H1",
+      "text": "detection.",
+      "page": 19
+    },
+    {
+      "level": "H1",
+      "text": "integration.",
+      "page": 19
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 19
+    },
+    {
+      "level": "H1",
+      "text": "node.position]; \n}",
+      "page": 20
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 20
+    },
+    {
+      "level": "H1",
+      "text": "optimizedPath.push(next);",
+      "page": 21
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 21
+    },
+    {
+      "level": "H1",
+      "text": "Conclusion",
+      "page": 22
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 22
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 23
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 24
+    },
+    {
+      "level": "H1",
+      "text": "obstacles",
+      "page": 25
+    },
+    {
+      "level": "H1",
+      "text": "destination",
+      "page": 25
+    },
+    {
+      "level": "H1",
+      "text": "change",
+      "page": 25
+    },
+    {
+      "level": "H1",
+      "text": "Let:",
+      "page": 25
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 25
+    },
+    {
+      "level": "H1",
+      "text": "optimization)",
+      "page": 26
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 26
+    },
+    {
+      "level": "H1",
+      "text": "(units)",
+      "page": 27
+    },
+    {
+      "level": "H1",
+      "text": "Observations:",
+      "page": 27
+    },
+    {
+      "level": "H1",
+      "text": "simulation fluidity.",
+      "page": 27
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 27
+    },
+    {
+      "level": "H1",
+      "text": "slower)",
+      "page": 28
+    },
+    {
+      "level": "H1",
+      "text": "changes",
+      "page": 28
+    },
+    {
+      "level": "H1",
+      "text": "Computational \nefficiency",
+      "page": 28
+    },
+    {
+      "level": "H1",
+      "text": "heuristics)",
+      "page": 28
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 28
+    },
+    {
+      "level": "H1",
+      "text": "Limitations:",
+      "page": 29
+    },
+    {
+      "level": "H1",
+      "text": "fully continuous.",
+      "page": 29
+    },
+    {
+      "level": "H1",
+      "text": "independently.",
+      "page": 29
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 29
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 30
+    },
+    {
+      "level": "H1",
+      "text": "coexist.",
+      "page": 31
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 31
+    },
+    {
+      "level": "H1",
+      "text": "mechanical constraints.",
+      "page": 32
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 32
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 33
+    },
+    {
+      "level": "H1",
+      "text": "REFERENCES",
+      "page": 34
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 34
+    },
+    {
+      "level": "H1",
+      "text": "scholarlykitchen.sspnet.org/2025/05/27/",
+      "page": 35
+    },
+    {
+      "level": "H1",
+      "text": "2024-25",
+      "page": 35
+    }
+  ],
+  "processing_info": {
+    "pdf_type": "text-based",
+    "total_blocks": 565,
+    "headings_found": 87,
+    "execution_time": 1.750990390777588,
+    "ocr_used": false
+  }
+}

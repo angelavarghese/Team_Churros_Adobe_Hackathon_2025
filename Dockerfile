@@ -1,35 +1,54 @@
-# Use a lightweight Python image compatible with AMD64 based on Debian Bookworm (Debian 12)
-# Bookworm is the current stable release, ensuring active package repositories.
-# The --platform flag here specifies the target architecture for the base image.
-FROM --platform=linux/amd64 python:3.9-slim-bookworm
+# Enhanced Multilingual PDF Heading Extractor with OCR
+# Supports 10+ languages: English, Hindi, Kannada, Sanskrit, Japanese, Korean, Tamil, Marathi, Urdu, etc.
+# Constraints: ≤200MB, ≤10s execution, offline, amd64, OCR fallback
 
-# Set the working directory inside the container
+FROM --platform=linux/amd64 python:3.11-slim
+
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies required by pdfplumber (e.g., for Pillow)
-# These are common dependencies for image processing and font handling.
-# 'poppler-utils' for PDF manipulation (like pdftotext)
-# 'libpoppler-dev' for development headers needed by some Python libraries interacting with Poppler
-# 'build-essential' for compiling C/C++ extensions during pip installs (e.g., if any Python package
-#   has native dependencies, though slim images try to minimize this)
-# 'python3-dev' for Python development headers, often needed when pip installing packages with C extensions
+# Install system dependencies for PyMuPDF and Tesseract OCR
 RUN apt-get update && apt-get install -y \
-    poppler-utils \
-    libpoppler-dev \
     build-essential \
-    python3-dev \
+    tesseract-ocr \
+    libtesseract-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the working directory
-COPY requirements.txt .
+# Install Tesseract language packs for multilingual OCR
+# Only install required languages to stay within size constraints
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr-eng \
+    tesseract-ocr-hin \
+    tesseract-ocr-kan \
+    tesseract-ocr-san \
+    tesseract-ocr-jpn \
+    tesseract-ocr-kor \
+    tesseract-ocr-tam \
+    tesseract-ocr-mar \
+    tesseract-ocr-urd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies specified in requirements.txt
-# '--no-cache-dir' helps keep the image size smaller by not storing pip's cache.
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the main application script into the working directory
-COPY main.py .
+# Copy application code
+COPY . .
 
-# Command to run the application when the container starts
-# This script is expected to automatically process PDFs in the /app/input directory (if applicable to your script)
-CMD ["python", "main.py"]
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/output /app/model /app/data
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/
+
+# Expose port for web interface
+EXPOSE 5000
+
+# Default command - can be overridden
+CMD ["python", "predict_and_export.py"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import joblib; joblib.load('model/model.joblib')" || exit 1

@@ -1,115 +1,62 @@
 {
-  "title": "Application form for grant of LTC advance",
+  "title": "file01",
   "outline": [
     {
-      "level": "H3",
-      "text": "Application form for grant of LTC advance",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "1.",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "2.",
-      "page": 1
-    },
-    {
-      "level": "H3",
+      "level": "H1",
       "text": "3.",
       "page": 1
     },
     {
-      "level": "H3",
-      "text": "4.",
+      "level": "H1",
+      "text": "Service",
       "page": 1
     },
     {
-      "level": "H3",
-      "text": "5.",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "6. Home Town as recorded in the Service Book",
-      "page": 1
-    },
-    {
-      "level": "H3",
+      "level": "H1",
       "text": "7.",
       "page": 1
     },
     {
-      "level": "H3",
+      "level": "H1",
       "text": "8.",
       "page": 1
     },
     {
-      "level": "H3",
+      "level": "H1",
       "text": "9.",
       "page": 1
     },
     {
-      "level": "H3",
+      "level": "H1",
       "text": "10.",
       "page": 1
     },
     {
-      "level": "H3",
-      "text": "S.No Name Age Relationship",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "1.",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "2.",
-      "page": 1
-    },
-    {
-      "level": "H3",
+      "level": "H1",
       "text": "11.",
       "page": 1
     },
     {
-      "level": "H3",
-      "text": "3.",
+      "level": "H1",
+      "text": "1. \n2. \n3. \n4.",
       "page": 1
     },
     {
-      "level": "H3",
-      "text": "4.",
+      "level": "H1",
+      "text": "5. \n6.",
       "page": 1
     },
     {
-      "level": "H3",
-      "text": "5.",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "6.",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "12.",
-      "page": 1
-    },
-    {
-      "level": "H3",
+      "level": "H1",
       "text": "Date",
       "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "Signature of Government Servant.",
-      "page": 1
     }
-  ]
+  ],
+  "processing_info": {
+    "pdf_type": "text-based",
+    "total_blocks": 34,
+    "headings_found": 10,
+    "execution_time": 0.327164888381958,
+    "ocr_used": false
+  }
 }

@@ -1,25 +1,22 @@
 {
-  "title": "Parsippany -Troy Hills STEM Pathways",
+  "title": "file04",
   "outline": [
     {
-      "level": "H1",
-      "text": "Parsippany -Troy Hills STEM Pathways",
-      "page": 1
-    },
-    {
-      "level": "H2",
+      "level": "H3",
       "text": "PATHWAY OPTIONS",
       "page": 1
     },
     {
-      "level": "H2",
-      "text": "REGULAR PATHWAYDISTINCTION PATHWAY",
-      "page": 1
-    },
-    {
-      "level": "H3",
-      "text": "the 4 years. *",
+      "level": "H1",
+      "text": "Goals:",
       "page": 1
     }
-  ]
+  ],
+  "processing_info": {
+    "pdf_type": "text-based",
+    "total_blocks": 21,
+    "headings_found": 2,
+    "execution_time": 0.2284998893737793,
+    "ocr_used": false
+  }
 }
