@@ -10,12 +10,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
 # Install system-level dependencies.
-# - libglib2.0-0: General library for PyMuPDF.
-# - tesseract-ocr: The OCR engine for pytesseract.
-# - poppler-utils: PDF rendering utilities for pdf2image.
-# - libpoppler-glib-dev: Sometimes needed for pdf2image compilation if wheels aren't found.
-# - libleptonica-dev: Dependency for tesseract-ocr.
-# - imagemagick: Used by pdf2image on some systems.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     tesseract-ocr \
@@ -25,24 +19,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     imagemagick \
     && rm -rf /var/lib/apt/lists/* # Clean up apt lists to reduce image size
 
-# Copy the requirements file into the container.
-COPY requirements.txt .
+# Copy the requirements file from Challenge_1B into the container's WORKDIR.
+COPY Challenge_1B/requirements.txt . 
 
 # Install Python dependencies.
 RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
-# CRUCIAL STEP for offline functionality:
-# Download the Sentence-Transformer model into the container's cache during the build process.
-# This ensures the model is present inside the image when the container runs,
-# eliminating the need for internet access at runtime.
+# Download the Sentence-Transformer model.
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')"
 
-# Copy your teammate's application code and model files into the container.
-# This assumes your 'adobe_repo' folder (with the underscore) is at the root of your project on the host.
-COPY adobe_repo /app/adobe_repo/ 
+# Copy your teammate's application code (Challenge_1A).
+COPY Challenge_1A /app/Challenge_1A/ 
+# SOURCE PATH ALREADY CORRECT
 
-# Copy the rest of your application code (pdf_processor.py) into the container.
-COPY . .
+# Copy your main application script (pdf_processor.py) from Challenge_1B into the container.
+COPY Challenge_1B/pdf_processor.py /app/pdf_processor.py 
+# FIX: Removed leading '/' from source path
 
 # Define the default command to run when the container starts.
 CMD ["python", "pdf_processor.py", "default_collection_name"]

@@ -7,43 +7,30 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import json
 from datetime import datetime
+import warnings # For suppressing future warnings
 
-# NEW: Import Teammate's Module (ensure this path is correct based on your folder name)
-from adobe_repo import robust_pdf_extractor
-
-# from extract_features import extract_features # This import needs to be verified/addressed later if it points to a missing file
-
-import warnings
+# Suppress all warnings (useful for cleaner CLI output in production)
 warnings.filterwarnings("ignore")
 
-
-# Update these paths to be relative to the script's own directory
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(SCRIPT_DIR, "model", "model.joblib") # CHANGED
-LABEL_MAP_PATH = os.path.join(SCRIPT_DIR, "model", "label_map.json") # CHANGED
-
-# Keep these paths relative to where you run the script, or make them dynamic inputs
-PDF_PATH = "data/labeled_blocks_sample.pdf" # This PDF_PATH might also need to be handled dynamically or be relative to a collection
-OUTPUT_PATH = "output/predictions.json"
+# NEW: Import Teammate's Module from the 'Challenge_1A' package
+# Assuming robust_pdf_extractor.py and predict_and_export.py are directly under Challenge_1A/
+# The 'Challenge_1A' package is copied to /app/Challenge_1A/ in the Docker image.
+from Challenge_1A import robust_pdf_extractor
 
 # --- Configuration Constants ---
-HF_MODELS_CACHE_DIR = "/app/huggingface_cache"
-COLLECTION_BASE_DIR_CONTAINER = "/app/current_collection"
-OUTPUT_DIR = "."
+HF_MODELS_CACHE_DIR = "/app/huggingface_cache" 
 OUTPUT_FILENAME = "output.json"
 
 # --- Compiled Regex Pattern (for clean_text_for_output) ---
-# Compile it once globally with the correct flags
-_unicode_allowed_chars_pattern = regex.compile( # Use regex.compile
-    r'[^^\p{L}\p{N}\s.,!?;:\'"()\-\[\]{}&%$#@*+/=<>|`~]', 
-    flags=regex.UNICODE # Use regex.UNICODE flag here
+_unicode_allowed_chars_pattern = regex.compile(
+    r'[^\p{L}\p{N}\s.,!?;:\'"()\-\[\]{}&%$#@*+/=<>|`~]', 
+    flags=regex.UNICODE
 )
 
-# --- Core PDF Processing Functions (these functions remain as they were in the final version) ---
+# --- Core PDF Processing Functions ---
 def extract_text_from_pdf(pdf_path):
     """
     Extracts all text from a PDF document, page by page.
-    Returns a list of strings, where each string is the text from a page.
     This function is primarily for fallback if teammate's app fails.
     """
     pages_text = []
@@ -57,10 +44,6 @@ def extract_text_from_pdf(pdf_path):
         print(f"Error extracting text from {pdf_path}: {e}")
         return []
     return pages_text
-
-# Note: The original 'identify_sections' from our initial development is conceptually replaced
-# by the integration with robust_pdf_extractor. Its code is not included here for brevity,
-# but its logic is now managed by the teammate's app.
 
 
 def get_document_paths_from_input(input_documents_list, base_dir):
@@ -89,7 +72,6 @@ def get_exclusion_keywords(persona_description, job_to_be_done):
     exclusions = []
     
     # --- Vegetarian/Veggie Exclusion ---
-    # Use regex.search directly here
     if regex.search(r'\b(vegetarian|veggie|plant-based)\b', persona_description.lower()) or \
        regex.search(r'\b(vegetarian|veggie|plant-based)\b', job_to_be_done.lower()):
         exclusions.extend([
@@ -101,7 +83,6 @@ def get_exclusion_keywords(persona_description, job_to_be_done):
         ])
     
     # --- Gluten-Free Exclusion ---
-    # Use regex.search directly here
     if regex.search(r'\b(gluten-free|celiac)\b', persona_description.lower()) or \
        regex.search(r'\b(gluten-free|celiac)\b', job_to_be_done.lower()):
         exclusions.extend([
@@ -129,7 +110,7 @@ def clean_text_for_output(text):
     return cleaned_text
 
 
-# --- MODIFIED FUNCTION: get_sections_from_teammate_app ---
+# --- NEW FUNCTION: Integrate with Teammate's PDF Extractor ---
 def get_sections_from_teammate_app(pdf_path, document_name):
     """
     Calls the robust_pdf_extractor to get structured outline and text blocks.
@@ -138,6 +119,8 @@ def get_sections_from_teammate_app(pdf_path, document_name):
     extracted_sections_from_teammate = []
     teammate_app_outline = [] # To store the outline from teammate's app for printing
     try:
+        # Call the main processing function from your teammate's module
+        # This function processes the PDF, extracts features, classifies, and returns an outline.
         teammate_output = robust_pdf_extractor.process_pdf(pdf_path)
 
         if teammate_output and "outline" in teammate_output:
@@ -148,22 +131,28 @@ def get_sections_from_teammate_app(pdf_path, document_name):
             all_blocks_with_text = []
             for page_num in range(doc.page_count):
                 page = doc.load_page(page_num)
-                blocks_on_page = page.get_text("blocks")
+                blocks_on_page = page.get_text("blocks") # (x0, y0, x1, y1, text, block_no, block_type)
                 for block in blocks_on_page:
+                    # Use robust_pdf_extractor's normalize_text for consistency
                     block_text = robust_pdf_extractor.normalize_text(block[4])
-                    if block_text.strip():
+                    if block_text.strip(): # Only consider non-empty blocks
                         all_blocks_with_text.append({
                             "page_num": page_num + 1,
                             "text": block_text,
-                            "bbox": block[:4]
+                            "bbox": block[:4] # Store bounding box for positional awareness
                         })
             doc.close()
 
+            # Now, iterate through the blocks and group them under the headings identified by the teammate's app
             current_heading_text = None
             current_heading_page = -1
             current_section_content_blocks = []
 
+            # Sort blocks by page and then y-position (reading order) for reliable content grouping
             all_blocks_with_text.sort(key=lambda b: (b['page_num'], b['bbox'][1]))
+
+            # Create a set of identified heading texts for quick lookup
+            # Use robust_pdf_extractor's normalize_text for robust matching
             identified_headings_set = set(robust_pdf_extractor.normalize_text(h['text']) for h in teammate_output['outline'])
 
             for block in all_blocks_with_text:
@@ -173,12 +162,14 @@ def get_sections_from_teammate_app(pdf_path, document_name):
 
                 is_new_heading = False
                 if normalized_block_text in identified_headings_set:
+                     # More precise check: Ensure it matches an actual heading from the outline
                     for heading_item in teammate_output["outline"]:
                         if heading_item["page"] == block_page and robust_pdf_extractor.normalize_text(heading_item["text"]) == normalized_block_text:
                             is_new_heading = True
                             break
 
                 if is_new_heading:
+                    # If a new heading is found and we have accumulated content for the *previous* section, save it
                     if current_heading_text and current_section_content_blocks:
                         extracted_sections_from_teammate.append({
                             "document": document_name,
@@ -187,12 +178,15 @@ def get_sections_from_teammate_app(pdf_path, document_name):
                             "page_number": current_heading_page,
                             "text_content": "\n".join(current_section_content_blocks).strip()
                         })
-                    current_heading_text = block_text
+                    # Start a new section with the current heading
+                    current_heading_text = block_text # Use original block_text as heading title
                     current_heading_page = block_page
-                    current_section_content_blocks = []
+                    current_section_content_blocks = [] # Reset content blocks for the new section
                 else:
+                    # If it's not a heading, add it to the current section's content
                     current_section_content_blocks.append(block_text)
 
+            # Add the last accumulated section after the loop finishes
             if current_heading_text and current_section_content_blocks:
                 extracted_sections_from_teammate.append({
                     "document": document_name,
@@ -201,6 +195,7 @@ def get_sections_from_teammate_app(pdf_path, document_name):
                     "page_number": current_heading_page,
                     "text_content": "\n".join(current_section_content_blocks).strip()
                 })
+            # Fallback if no headings were found by teammate's app or if it's just one large block of text
             elif not extracted_sections_from_teammate and all_blocks_with_text:
                  extracted_sections_from_teammate.append({
                     "document": document_name,
@@ -210,15 +205,17 @@ def get_sections_from_teammate_app(pdf_path, document_name):
                     "text_content": "\n".join([b['text'] for b in all_blocks_with_text]).strip()
                 })
 
+
             print(f"Successfully extracted {len(extracted_sections_from_teammate)} sections via teammate's app outline.")
         else:
             print(f"Teammate's app returned no outline for '{document_name}'.")
+            # Raising an error here to trigger the outer except block for better fallback handling.
             raise ValueError("No outline provided by teammate's app, triggering fallback.")
 
     except Exception as e:
         print(f"Error integrating with teammate's app for '{pdf_path}': {e}")
         print("Falling back to basic text extraction (each page becomes a section).")
-        pages_content = extract_text_from_pdf(pdf_path)
+        pages_content = extract_text_from_pdf(pdf_path) # Our original basic page text extractor
         if pages_content:
             for page_num, text_on_page in enumerate(pages_content):
                 if text_on_page.strip():
@@ -231,7 +228,7 @@ def get_sections_from_teammate_app(pdf_path, document_name):
                     })
             print(f"  (Fallback) Identified {len(extracted_sections_from_teammate)} sections from '{document_name}'.")
     
-    return extracted_sections_from_teammate, teammate_app_outline # RETURN THE OUTLINE TOO
+    return extracted_sections_from_teammate, teammate_app_outline
 
 
 # --- Main Execution Block ---
@@ -241,7 +238,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python pdf_processor.py <absolute_path_to_collection_folder>")
         print("Example: python pdf_processor.py /tmp/my_collection")
-        sys.exit(1) # Use sys.exit for cleaner exit in subprocess
+        sys.exit(1)
 
     # The argument is the absolute path to the collection folder (e.g., /tmp/tmpXYZ/MyCollection)
     collection_folder_path = sys.argv[1]
@@ -290,7 +287,6 @@ if __name__ == "__main__":
 
     print("Loading SentenceTransformer model...")
     try:
-        # Model name changed to paraphrase-multilingual-MiniLM-L12-v2 for Japanese support
         model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2', cache_folder=HF_MODELS_CACHE_DIR)
         print("SentenceTransformer model loaded successfully.")
     except Exception as e:
@@ -415,7 +411,8 @@ if __name__ == "__main__":
         num_sentences_to_extract = min(3, len(sentences_to_embed))
         top_sentence_indices = np.argsort(sentence_similarities)[::-1][:num_sentences_to_extract]
         
-        extracted_sentences_in_order = sorted([sentences_to_embed[idx] for idx in top_sentence_indices], key=lambda x: sentences_to_embed.index(x))
+        extracted_sentences_in_order = sorted([sentences_to_embed[idx] for idx in top_sentence_indices], 
+                                              key=lambda x: sentences_to_embed.index(x))
         
         cleaned_extracted_sentences = [clean_text_for_output(s) for s in extracted_sentences_in_order]
         
@@ -430,7 +427,7 @@ if __name__ == "__main__":
                 "page_number": section["page_number"]
             })
         else:
-            print(f"  Skipping subsection analysis for '{section['document']}' (Page {section['page_num']}) because refined_text became empty after cleaning.")
+            print(f"  Skipping subsection analysis for '{section['document']}' (Page {section['page_number']}) because refined_text became empty after cleaning.")
 
     print("Subsection analysis complete.")
 
@@ -454,8 +451,7 @@ if __name__ == "__main__":
             "page_number": section["page_number"]
         })
 
-    # The output file path is already constructed relative to collection_folder_path
-    # os.makedirs(os.path.dirname(output_file_path) or ".", exist_ok=True) # This line is handled by Flask's temp dir creation
+    os.makedirs(os.path.dirname(output_file_path) or ".", exist_ok=True)
     
     print(f"\nSaving final output to '{output_file_path}'...")
     try:
@@ -464,7 +460,7 @@ if __name__ == "__main__":
         print("Output saved successfully!")
     except IOError as e:
         print(f"Error saving output file: {e}")
-        sys.exit(1) # Exit with error code if saving fails
+        sys.exit(1)
     except Exception as e:
         print(f"An unexpected error occurred while saving: {e}")
-        sys.exit(1) # Exit with error code if saving fails
+        sys.exit(1)
