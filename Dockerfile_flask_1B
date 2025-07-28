@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* # Clean up apt lists to reduce image size
 
 # Copy the requirements file from Challenge_1B into the container's WORKDIR.
-COPY Challenge_1B/requirements.txt . # CHANGED SOURCE PATH
+COPY Challenge_1B/requirements.txt . 
+# CHANGED SOURCE PATH
 
 # Install Python dependencies.
 RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
@@ -30,14 +31,18 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 
 # Copy your teammate's application code (Challenge_1A).
 # Since Dockerfile is now in the root, direct path to sibling is 'Challenge_1A'.
-COPY Challenge_1A /app/Challenge_1A/ # CHANGED SOURCE PATH
+COPY Challenge_1A /app/Challenge_1A/ 
+# CHANGED SOURCE PATH
 
 # Copy your Flask application and HTML templates from Challenge_1B.
-COPY Challenge_1B/app.py /app/app.py # CHANGED SOURCE PATH
-COPY Challenge_1B/templates/ /app/templates/ # CHANGED SOURCE PATH
+COPY Challenge_1B/flaskapp.py /app/flaskapp.py 
+# CHANGED SOURCE PATH
+COPY Challenge_1B/templates/ /app/templates/ 
+# CHANGED SOURCE PATH
 
 # Copy your main document processing script from Challenge_1B.
-COPY Challenge_1B/pdf_processor.py /app/pdf_processor.py # CHANGED SOURCE PATH
+COPY Challenge_1B/pdf_processor.py /app/pdf_processor.py 
+# CHANGED SOURCE PATH
 
 # Expose the port Flask will run on (default is 5000).
 EXPOSE 5000
