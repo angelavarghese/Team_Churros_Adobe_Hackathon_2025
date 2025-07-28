@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona-Driven Document Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+        }
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        .flash-error {
+            background-color: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+        }
+        .flash-success {
+            background-color: #dcfce7;
+            color: #22c55e;
+            border: 1px solid #86efac;
+        }
+        pre {
+            background-color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .output-section {
+            background-color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            margin-top: 1.5rem;
+        }
+        .subsection-paragraph {
+            background-color: #eff6ff;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #bfdbfe;
+            line-height: 1.6; /* Adjust line height for better readability */
+        }
+        .code-block {
+            background-color: #1a202c; /* dark gray/blue for code */
+            color: #e2e8f0; /* light gray for text */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; /* Monospace font for code */
+            font-size: 0.875rem; /* text-sm */
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Persona-Driven Document Intelligence</h1>
+        <p class="text-center text-gray-600 mb-8">Connect What Matters — For the User Who Matters</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="mb-4">
+                {% for category, message in messages %}
+                    <li class="flash-message {% if category == 'error' %}flash-error{% else %}flash-success{% endif %}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% if results and results.error_message %}
+            <div class="flash-message flash-error">
+                <p class="font-bold">Processing Error:</p>
+                <p>{{ results.error_message }}</p>
+            </div>
+        {% endif %}
+
+        <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Input Requirements:</h2>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-600 mb-2">Expected ZIP File Directory Format:</h3>
+                <pre class="bg-gray-100 text-gray-700 p-4 rounded-md text-sm">{{ dir_format }}</pre>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-medium text-gray-600 mb-2">Expected `input.json` Format:</h3>
+                <pre class="bg-gray-100 text-gray-700 p-4 rounded-md text-sm">{{ json_format }}</pre>
+            </div>
+        </div>
+
+        <form action="/process" method="post" enctype="multipart/form-data" class="p-6 border border-blue-300 rounded-lg bg-blue-50 shadow-md">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">Upload Document Collection (ZIP File):</h2>
+            <div class="mb-4">
+                <label for="file-upload" class="block text-gray-700 text-sm font-bold mb-2">
+                    Select Collection ZIP File:
+                </label>
+                <input id="file-upload" type="file" name="file" accept=".zip" required
+                       class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"/>
+                <p class="mt-1 text-sm text-gray-500">Max file size: 32MB. Must be a .zip file containing your single top-level collection folder.</p>
+            </div>
+            <button type="submit"
+                    class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
+                Process Document Collection
+            </button>
+        </form>
+
+        {% if results %}
+            <div class="output-section">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Processing Results</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-center">
+                    <div class="p-4 bg-green-100 rounded-lg border border-green-300">
+                        <p class="text-lg font-semibold text-green-800">Number of PDFs Processed:</p>
+                        <p class="text-3xl font-extrabold text-green-700">{{ results.num_pdfs }}</p>
+                    </div>
+                    <div class="p-4 bg-purple-100 rounded-lg border border-purple-300">
+                        <p class="text-lg font-semibold text-purple-800">Number of Extracted Sections:</p>
+                        <p class="text-3xl font-extrabold text-purple-700">{{ results.num_extracted_sections }}</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-3">Subsection Analysis:</h3>
+                {% if results.subsection_analysis_paragraphs %}
+                    {% for paragraph_html in results.subsection_analysis_paragraphs %}
+                        <div class="subsection-paragraph">
+                            {{ paragraph_html | safe }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-gray-600">No subsection analysis results found or all entries were filtered out.</p>
+                {% endif %}
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-3 mt-6">Full Output JSON:</h3>
+                <pre class="code-block">{{ results.output_json_data }}</pre>
+                <a href="{{ url_for('download_output_json') }}" class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150 ease-in-out">
+                    Download output.json
+                </a>
+            </div>
+
+            <div class="output-section mt-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-3">Raw Command Line Output:</h3>
+                <pre class="code-block">{{ results.raw_cli_output }}</pre>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

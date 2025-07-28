@@ -1,0 +1,97 @@
+{
+    "metadata": {
+        "input_documents": [
+            "South of France - Cities.pdf",
+            "South of France - Cuisine.pdf",
+            "South of France - History.pdf",
+            "South of France - Restaurants and Hotels.pdf",
+            "South of France - Things to Do.pdf",
+            "South of France - Tips and Tricks.pdf",
+            "South of France - Traditions and Culture.pdf"
+        ],
+        "persona": "Travel Planner",
+        "job_to_be_done": "Plan a trip of 4 days for a group of 10 college friends.",
+        "processing_timestamp": "2025-07-27T14:46:07.751647"
+    },
+    "extracted_sections": [
+        {
+            "document": "South of France - Tips and Tricks.pdf",
+            "section_title": "Introduction",
+            "importance_rank": 1,
+            "page_number": 1
+        },
+        {
+            "document": "South of France - Restaurants and Hotels.pdf",
+            "section_title": "Upscale Hotels",
+            "importance_rank": 2,
+            "page_number": 11
+        },
+        {
+            "document": "South of France - Things to Do.pdf",
+            "section_title": "Outdoor Adventures",
+            "importance_rank": 3,
+            "page_number": 9
+        },
+        {
+            "document": "South of France - Cities.pdf",
+            "section_title": "Cultural Highlights",
+            "importance_rank": 4,
+            "page_number": 10
+        },
+        {
+            "document": "South of France - Traditions and Culture.pdf",
+            "section_title": "Christmas Traditions",
+            "importance_rank": 5,
+            "page_number": 4
+        },
+        {
+            "document": "South of France - History.pdf",
+            "section_title": "Section 6 (Page 12)",
+            "importance_rank": 6,
+            "page_number": 12
+        },
+        {
+            "document": "South of France - Cuisine.pdf",
+            "section_title": "Conclusion",
+            "importance_rank": 7,
+            "page_number": 8
+        }
+    ],
+    "subsection_analysis": [
+        {
+            "document": "South of France - Tips and Tricks.pdf",
+            "refined_text": "The Ultimate South of France Travel Companion: Your Comprehensive Guide to Packing, Planning, and Exploring.",
+            "page_number": 1
+        },
+        {
+            "document": "South of France - Restaurants and Hotels.pdf",
+            "refined_text": "Family-Friendly Hotels Club Med Opio en Provence (Opio): A family-friendly resort oering a wide range of activities for children and adults, including sports, entertainment, and kids' clubs. The beautiful setting and all-inclusive amenities make it a hassle-free vacation spot. The picturesque setting and family-friendly facilities make it a unique and enjoyable stay.",
+            "page_number": 11
+        },
+        {
+            "document": "South of France - Things to Do.pdf",
+            "refined_text": "Family-Friendly Activities The South of France oers a variety of activities that are perfect for families with children: Theme Parks and Attractions Antibes: Visit Marineland for marine shows and an aquarium. Monteux: Spend a day at Parc Spirou, a theme park based on the famous comic book character. Cap d'Agde: Have fun at Luna Park, an amusement park with rides and games.",
+            "page_number": 9
+        },
+        {
+            "document": "South of France - Cities.pdf",
+            "refined_text": "Student Life University Influence: Highlight the vibrant student life and the influence of the university on the city's culture. Modern Architecture: Mention modern architectural landmarks like the Antigone district or the Pierresvives building.",
+            "page_number": 10
+        },
+        {
+            "document": "South of France - Traditions and Culture.pdf",
+            "refined_text": "Pilgrimages The South of France is home to several important pilgrimage sites. The town of Lourdes, located in the Pyrenees, is one of the most famous, attracting millions of visitors each year. The town of Saintes-Maries-de-la-Mer is another significant pilgrimage site, particularly for the Romani community, who venerate Saint Sara.",
+            "page_number": 4
+        },
+        {
+            "document": "South of France - History.pdf",
+            "refined_text": "Conclusion The South of France oers a rich tapestry of history, culture, and architecture that is sure to captivate any traveler. Whether you're exploring the vibrant streets of Marseille, the elegant boulevards of Aix-en- Provence, or the charming squares of Montpellier, you'll find a wealth of historical treasures waiting to be discovered. Use this guide to plan your journey through the South of France and immerse yourself in the fascinating history of this beautiful region.",
+            "page_number": 12
+        },
+        {
+            "document": "South of France - Cuisine.pdf",
+            "refined_text": "Take a wine tour to visit vineyards, taste local wines, and learn about the winemaking process. Many wineries oer guided tours and tastings, giving you the opportunity to sample a variety of wines and discover new favorites. You'll be accompanied by a trained true dog and a knowledgeable guide who will teach you about the true's history and culinary uses.",
+            "page_number": 8
+        }
+    ]
+}

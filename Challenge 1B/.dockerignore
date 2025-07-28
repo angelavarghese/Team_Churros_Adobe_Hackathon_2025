@@ -1,0 +1,47 @@
+# Python specific ignores
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# Operating System and IDE specific files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.bak
+*.swp
+*~
+
+# Git ignores
+.git/
+.gitignore
+
+# Project-specific large files/folders that should NOT be part of the Docker image.
+# We are mounting PDFs at runtime, so they should NOT be copied into the image.
+# If your PDFs are in a folder named 'PDFs', uncomment the line below:
+# PDFs/
+
+# If you have any other large data folders that are meant for runtime mounting,
+# or are just source data, add them here:
+# data/
+# raw_data/
+# notebooks/
+# results/
+# output/
+# logs/
+# temp/
+
+# Docker build related files (these are handled by Docker itself and should not be copied into the context)
+Dockerfile
+.dockerignore

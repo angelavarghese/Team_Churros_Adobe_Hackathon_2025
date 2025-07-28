@@ -1,0 +1,10 @@
+Flask
+PyMuPDF
+sentence-transformers
+scipy
+scikit-learn
+pandas
+pytesseract
+pdf2image
+regex
+torch
