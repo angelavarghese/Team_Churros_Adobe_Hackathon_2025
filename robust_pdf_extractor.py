@@ -24,27 +24,63 @@ except ImportError:
     OCR_AVAILABLE = False
     print("⚠️ OCR dependencies not available. Install with: pip install pytesseract pdf2image")
 
-# ---------- CONFIGURATION ----------
-LANGUAGES = "eng+hin+kan+san+jpn+kor+tam+mar+urd"  # Supported languages
-MODEL_PATH = "model/model.joblib"
-LABEL_MAP_PATH = "model/label_map.json"
-OUTPUT_DIR = "output"
-THRESHOLD_TEXT_LENGTH = 50  # Minimum text length to consider PDF as text-based
-
+# ---------- DYNAMIC CONFIGURATION ----------
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(SCRIPT_DIR, "model", "model.joblib")
+LABEL_MAP_PATH = os.path.join(SCRIPT_DIR, "model", "label_map.json")
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# Language configuration
+LANGUAGES = "eng+hin+kan+san+jpn+kor+tam+mar+urd"  # Supported languages
+THRESHOLD_TEXT_LENGTH = 50  # Minimum text length to consider PDF as text-based
 
 # Load model and label map
 try:
     clf = load(MODEL_PATH)
     with open(LABEL_MAP_PATH, "r", encoding="utf-8") as f:
         label_map = json.load(f)
-    print("✅ Model loaded successfully")
+    
+    # Calculate model size
+    model_size_mb = os.path.getsize(MODEL_PATH) / (1024 * 1024)
+    print(f"✅ Model loaded successfully (Size: {model_size_mb:.2f} MB)")
 except FileNotFoundError:
     print("⚠️ Model not found. Using heuristic-based classification")
     clf = None
     label_map = None
+    model_size_mb = 0.0
 
 # ---------- HELPER FUNCTIONS ----------
+
+def clean_ocr_text(text):
+    """Clean OCR text by removing noise and adding placeholders for short text."""
+    # Remove unwanted symbols but keep Latin, Devanagari, Japanese, Korean, spaces
+    text = re.sub(r'[^A-Za-z\u0900-\u097F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF ]', '', text)
+    text = text.strip()
+
+    # Detect if Japanese characters exist
+    if re.search(r'[\u3040-\u30FF\u4E00-\u9FFF]', text):
+        if len(text) < 2:
+            return "Japanese Text"  # Placeholder
+        return text
+
+    # Detect if Devanagari (Hindi/Sanskrit/Marathi)
+    if re.search(r'[\u0900-\u097F]', text):
+        if len(text) < 2:
+            return "Hindi/Sanskrit Text"  # Placeholder
+        return text
+
+    # Detect if Korean
+    if re.search(r'[\uAC00-\uD7AF]', text):
+        if len(text) < 2:
+            return "Korean Text"  # Placeholder
+        return text
+
+    # Remove very short text (noise)
+    if len(text) < 3:
+        return None
+
+    return text
 
 def normalize_text(text):
     """Normalize text using Unicode normalization."""
@@ -113,27 +149,40 @@ def is_scanned_pdf(pdf_path):
     doc = fitz.open(pdf_path)
     total_text = ""
     total_blocks = 0
+    image_blocks = 0
+    text_blocks = 0
     
     for page in doc:
         text = page.get_text()
         total_text += text
         blocks = page.get_text("blocks")
         total_blocks += len(blocks)
+        
+        # Count image vs text blocks
+        for block in blocks:
+            if block[6] == 1:  # Image block
+                image_blocks += 1
+            elif block[6] == 0:  # Text block
+                text_blocks += 1
     
     doc.close()
     
     # Check if text is too short or contains mostly image blocks
     text_length = len(total_text.strip())
-    print(f"📄 PDF Analysis: {text_length} characters, {total_blocks} blocks")
+    print(f"📄 PDF Analysis: {text_length} characters, {total_blocks} blocks ({text_blocks} text, {image_blocks} images)")
     
     # Consider scanned if:
     # 1. Very little text (< threshold)
     # 2. Text contains mostly image references
     # 3. No meaningful text blocks
+    # 4. High ratio of image blocks to total blocks (>70%)
+    # 5. Low text-to-block ratio (<0.5 characters per block)
     is_scanned = (
         text_length < THRESHOLD_TEXT_LENGTH or
         total_text.count("<image") > len(total_text) * 0.1 or
-        total_blocks == 0
+        total_blocks == 0 or
+        (total_blocks > 0 and image_blocks / total_blocks > 0.7) or
+        (total_blocks > 0 and text_length / total_blocks < 0.5)
     )
     
     return is_scanned
@@ -165,7 +214,12 @@ def extract_text_ocr(pdf_path, lang=LANGUAGES):
         
         for page_num, img in enumerate(images, start=1):
             print(f"📄 Processing page {page_num} with OCR...")
-            text = pytesseract.image_to_string(img, lang=lang, config='--psm 6')
+            # Optimize OCR settings for better performance
+            text = pytesseract.image_to_string(
+                img, 
+                lang=lang, 
+                config='--psm 6 --oem 1 -c tessedit_do_invert=0'
+            )
             page_texts.append((page_num, text))
         
         return page_texts
@@ -237,8 +291,8 @@ def get_features_from_ocr_text(text, page_num, line_num, total_lines):
     words = text_clean.split()
     num_words = len(words)
     
-    # Skip very long lines (likely body text)
-    if num_words > 15:
+    # More lenient word limit for OCR (some headings can be longer)
+    if num_words > 25:
         return None
     
     # Estimate position based on line number
@@ -247,8 +301,23 @@ def get_features_from_ocr_text(text, page_num, line_num, total_lines):
     # Script detection
     script_name = detect_script(text_clean)
     
-    # Heuristic features for OCR text
-    font_size_ratio = 1.5 if num_words <= 3 else 1.0  # Short lines likely headings
+    # Enhanced heuristic features for OCR text
+    # Consider short lines, lines with numbers, or lines with special characters as potential headings
+    is_potential_heading = (
+        num_words <= 8 or  # Short lines
+        any(char.isdigit() for char in text_clean) or  # Contains numbers
+        any(char in '一二三四五六七八九十百千万' for char in text_clean) or  # Japanese/Chinese numbers
+        any(char in '१२३४५६७८९०' for char in text_clean) or  # Devanagari numbers
+        text_clean.strip().endswith('.') or  # Ends with period
+        text_clean.strip().endswith('：') or  # Ends with Japanese colon
+        text_clean.strip().endswith(':')  # Ends with colon
+    )
+    
+    if not is_potential_heading:
+        return None
+    
+    # Font size estimation based on line characteristics
+    font_size_ratio = 1.8 if num_words <= 3 else (1.4 if num_words <= 6 else 1.1)
     caps_ratio = calculate_caps_ratio(text_clean, script_name)
     
     return {
@@ -374,9 +443,11 @@ def process_pdf(pdf_path):
         for page_num, text in pages_text:
             lines = text.split('\n')
             for line_num, line in enumerate(lines):
-                features = get_features_from_ocr_text(line, page_num, line_num, len(lines))
-                if features:
-                    features_list.append(features)
+                cleaned_line = clean_ocr_text(line)
+                if cleaned_line:
+                    features = get_features_from_ocr_text(cleaned_line, page_num, line_num, len(lines))
+                    if features:
+                        features_list.append(features)
         
         print(f"📊 Extracted {len(features_list)} text blocks from OCR")
         
@@ -402,18 +473,11 @@ def process_pdf(pdf_path):
         outline = []
         print("⚠️ No text blocks found")
     
-    # Step 4: Generate output
+    # Step 4: Generate output (Hackathon compliant format)
     title = os.path.basename(pdf_path).replace(".pdf", "")
     output = {
         "title": title,
-        "outline": outline,
-        "processing_info": {
-            "pdf_type": "scanned" if scanned else "text-based",
-            "total_blocks": len(features_list),
-            "headings_found": len(outline),
-            "execution_time": time.time() - start_time,
-            "ocr_used": scanned and OCR_AVAILABLE
-        }
+        "outline": outline
     }
     
     # Step 5: Save output
@@ -423,7 +487,14 @@ def process_pdf(pdf_path):
     
     exec_time = time.time() - start_time
     print(f"✅ Completed in {exec_time:.2f}s")
+    print(f"📊 Headings detected: {len(outline)}")
     print(f"📁 Output saved to: {output_path}")
+    
+    # Check hackathon constraints
+    if exec_time > 10.0:
+        print(f"⚠️ Warning: Execution time ({exec_time:.2f}s) exceeds 10s limit")
+    if model_size_mb > 200.0:
+        print(f"⚠️ Warning: Model size ({model_size_mb:.2f}MB) exceeds 200MB limit")
     
     return output
 
@@ -464,19 +535,34 @@ def process_directory(input_dir="input"):
 # ---------- MAIN EXECUTION ----------
 
 if __name__ == "__main__":
-    print("🌍 Robust Multilingual PDF Heading Extractor")
+    print("Robust Multilingual PDF Heading Extractor")
+    print("Adobe Hackathon Round 1A - Compliant Version")
     print("=" * 50)
+    
+    # Display model information
+    print(f"Model size: {model_size_mb:.2f} MB")
+    print(f"Supported languages: {LANGUAGES}")
+    print(f"OCR available: {OCR_AVAILABLE}")
     
     # Check dependencies
     if not OCR_AVAILABLE:
-        print("⚠️ OCR dependencies not available. Scanned PDFs will not be processed.")
-        print("   Install with: pip install pytesseract pdf2image")
+        print("Warning: OCR dependencies not available. Scanned PDFs will not be processed.")
+        print("Install with: pip install pytesseract pdf2image")
     
-    # Process PDFs
-    results = process_directory("input")
+    # Process PDFs from input directory
+    input_dir = os.path.join(SCRIPT_DIR, "input")
+    if not os.path.exists(input_dir):
+        print(f"Input directory not found: {input_dir}")
+        print("Creating input directory...")
+        os.makedirs(input_dir, exist_ok=True)
+        print(f"Please place PDF files in: {input_dir}")
+        exit(1)
+    
+    results = process_directory(input_dir)
     
     if results:
-        print(f"\n🎉 Successfully processed {len(results)} PDFs!")
-        print(f"📁 Check the '{OUTPUT_DIR}' directory for results.")
+        print(f"\nSuccessfully processed {len(results)} PDFs!")
+        print(f"Check the '{OUTPUT_DIR}' directory for results.")
     else:
-        print("\n❌ No PDFs were successfully processed.") 
+        print("\nNo PDFs were successfully processed.")
+        print(f"Please ensure PDF files are placed in: {input_dir}") 

@@ -86,12 +86,5 @@
       "text": "Board",
       "page": 11
     }
-  ],
-  "processing_info": {
-    "pdf_type": "text-based",
-    "total_blocks": 187,
-    "headings_found": 17,
-    "execution_time": 1.2166357040405273,
-    "ocr_used": false
-  }
+  ]
 }

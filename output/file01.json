@@ -51,12 +51,5 @@
       "text": "Date",
       "page": 1
     }
-  ],
-  "processing_info": {
-    "pdf_type": "text-based",
-    "total_blocks": 34,
-    "headings_found": 10,
-    "execution_time": 0.327164888381958,
-    "ocr_used": false
-  }
+  ]
 }

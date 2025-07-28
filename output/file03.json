@@ -41,12 +41,5 @@
       "text": "Milestones",
       "page": 7
     }
-  ],
-  "processing_info": {
-    "pdf_type": "text-based",
-    "total_blocks": 189,
-    "headings_found": 8,
-    "execution_time": 0.7049195766448975,
-    "ocr_used": false
-  }
+  ]
 }

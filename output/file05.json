@@ -21,12 +21,5 @@
       "text": "WWW.TOPJUMP.COM",
       "page": 1
     }
-  ],
-  "processing_info": {
-    "pdf_type": "text-based",
-    "total_blocks": 10,
-    "headings_found": 4,
-    "execution_time": 0.23294901847839355,
-    "ocr_used": false
-  }
+  ]
 }

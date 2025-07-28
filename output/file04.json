@@ -11,12 +11,5 @@
       "text": "Goals:",
       "page": 1
     }
-  ],
-  "processing_info": {
-    "pdf_type": "text-based",
-    "total_blocks": 21,
-    "headings_found": 2,
-    "execution_time": 0.2284998893737793,
-    "ocr_used": false
-  }
+  ]
 }
